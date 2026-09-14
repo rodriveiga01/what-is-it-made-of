@@ -284,6 +284,36 @@ const KB: Record<string, DecomposeResponse> = {
     funFact: "You started with breakfast. You ended in a star — carbon was forged in one.",
     originHint: "Every carbon atom is older than the Earth itself.",
   },
+  croissant: {
+    normalizedName: "Croissant",
+    summary: "Laminated dough: thin layers of yeasted dough interleaved with butter.",
+    components: [
+      c("Dough Layers", "Dozens of flour-water-yeast sheets folded around butter.", "assembly", "raw"),
+      c("Butter Block", "Cold cultured butter rolled between the dough turns.", "material", "raw"),
+      c("Yeast Culture", "Live yeast breathing air into the crumb.", "material", "raw", "uncommon"),
+      c("Egg Wash", "Beaten egg brushed on for the glossy brown crust.", "material", "liquid", "common", true),
+      c("Flour Base", "Wheat flour giving the gluten network.", "material", "raw"),
+      c("Caramelized Crust", "Sugars browned in the oven's heat.", "material", "raw", "common", true),
+    ],
+    materials: ["flour", "butter", "yeast"],
+    funFact: "A classic croissant has 81 layers — three folds of three, three times.",
+    originHint: "Wheat from temperate plains; butter from dairy herds.",
+  },
+  "pastel de nata": {
+    normalizedName: "Pastel de Nata",
+    summary: "Crisp puff-pastry cup holding wobbling egg custard, scorched on top.",
+    components: [
+      c("Puff Pastry Shell", "Flaky laminated crust baked crisp in a hot tin.", "assembly", "raw"),
+      c("Custard Filling", "Egg yolk, sugar, cream and milk set to a wobble.", "assembly", "liquid"),
+      c("Egg Yolk Mix", "Yolks giving the rich yellow color and set.", "material", "raw"),
+      c("Caramelized Top", "Sugar scorched nearly black under fierce heat.", "material", "raw", "uncommon"),
+      c("Cinnamon Dust", "Bark spice shaken over before serving.", "material", "raw", "common", true),
+      c("Lemon Zest", "Citrus peel perfuming the custard.", "material", "raw", "common", true),
+    ],
+    materials: ["egg", "flour", "sugar"],
+    funFact: "Baked since 1837 by monks — the original Belém recipe is still secret.",
+    originHint: "Eggs from poultry farms; sugar cane from tropical harvests; cinnamon from Sri Lanka.",
+  },
   display: {
     normalizedName: "Phone Display",
     summary: "A fused stack of glass, touch sensor and millions of OLED pixels.",
@@ -353,6 +383,26 @@ function stripGenericSuffixes(name: string): string {
   return out || name;
 }
 
+/** Words that carry no domain meaning on their own. When a tapped target is
+ *  made of nothing but these (e.g. diving into our own "Small Parts"),
+ *  there is no substance to compose children from. */
+const FILLER_WORDS = new Set([
+  "core", "shell", "housing", "assembly", "unit", "module", "cover", "body",
+  "frame", "set", "element", "elements", "material", "materials", "parts",
+  "mix", "bits", "stock", "base", "small", "control", "connector", "fastener",
+  "surface", "finish", "structure", "holding", "inner", "outer",
+]);
+
+/** The substantive words of a name. Empty when the name is pure filler —
+ *  callers then fall back to the thread root so layers go sideways
+ *  instead of spiraling into "Small Parts Shell". */
+function substantive(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter((w) => w && !FILLER_WORDS.has(w.toLowerCase()))
+    .join(" ");
+}
+
 function title(s: string): string {
   return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1));
 }
@@ -381,6 +431,13 @@ const ALIASES: Record<string, string> = {
   "aa battery": "battery",
   screen: "display",
   "oled": "display",
+  croissants: "croissant",
+  "pasteis de nata": "pastel de nata",
+  "pastéis de nata": "pastel de nata",
+  "pastel de belem": "pastel de nata",
+  "pastel de belém": "pastel de nata",
+  "pastéis de belém": "pastel de nata",
+  "custard tart": "pastel de nata",
   "graphite": "graphite core",
   "pencil lead": "graphite core",
   "windings": "copper windings",
@@ -413,11 +470,11 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
   if (/(element|atom|carbon|copper|iron|lithium|silicon|gold|aluminum|aluminium|quartz|uranium|cobalt|nickel|neodymium)/.test(lower) || depth >= 5) {
     const selfEl = name.toLowerCase();
     const elComponents = [
-        c("Raw Source", `Mine, well or forest where ${name} begins.`, "assembly", "raw", "uncommon"),
-        c("Refined Stock", `Cleaned, smelted or concentrated ${name}.`, "material", "metal"),
+        c("Raw Source", `Mine, well, forest or farm where ${name} begins.`, "assembly", "raw", "uncommon"),
+        c("Refined Stock", `Cleaned, milled or refined ${name}.`, "material", "metal"),
         c("Finished Material", `${name} ready for manufacturing.`, "material", "raw", "common", true),
         c("Deep Time Story", `${name} carries atoms older than the Earth itself.`, "element", "gem", "rare", true),
-        c("Recycled Stream", `Recovered ${name} re-entering the supply chain.`, "material", "raw", "common", true),
+        c("Source Region", `The part of the world where ${name} is found.`, "material", "raw", "common", true),
     ].filter((child) => child.name.toLowerCase() !== selfEl);
     return {
       normalizedName: name,
@@ -452,7 +509,9 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
   // terminal material/element set built from the suffix-stripped base noun,
   // so threads bottom out even when live AI stays down.
   if (depth >= 3) {
-    const base = stripGenericSuffixes(name);
+    const stripped = stripGenericSuffixes(name);
+    // Filler target (e.g. our own "Small Parts"): borrow the root's substance.
+    const base = substantive(stripped) || title(root);
     const bl = base.toLowerCase();
     // Never stack "Stock" onto something already called stock.
     const stockName = /stocks?$/i.test(base) ? base : `${base} Stock`;
@@ -460,10 +519,10 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
     const self = name.toLowerCase();
     const components = [
         c(stockName, `Bulk ${bl} shaped for this part.`, "material", "raw"),
-        c("Raw Feedstock", `Ore, crude or harvest behind ${bl}.`, "material", "raw"),
+        c("Raw Feedstock", `Ore, crop or harvest behind ${bl}.`, "material", "raw"),
         c("Processing Aid", `Heat, pressure or chemistry forming it.`, "component", "box", "common", true),
         c("Base Element", `The atoms ${bl} is built from.`, "element", "gem", "rare", true),
-        c("Recycled Stream", `Recovered ${bl} re-entering the supply chain.`, "material", "raw", "common", true),
+        c("Source Region", `The part of the world its raw stuff comes from.`, "material", "raw", "common", true),
     ].filter((child) => child.name.toLowerCase() !== self);
     return {
       normalizedName: name,
@@ -475,27 +534,31 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
     };
   }
 
-  // Generic physical breakdown — always specific to the named target.
-  // Children compose from the suffix-stripped base so one fallback layer
-  // never stacks suffixes onto the previous layer's invented names.
-  const base = stripGenericSuffixes(name);
+  // Generic physical breakdown — domain-neutral on purpose. This branch serves
+  // ANYTHING (gadgets, pastries, plants), so children must read sensibly for
+  // all of them: no screws, no sensors, no steel. Never state materials we
+  // don't know — omit rather than lie.
+  const strippedBase = stripGenericSuffixes(name);
+  // Filler target (e.g. our own "Small Parts"): borrow the root's substance
+  // so the layer goes sideways instead of inventing "Small Parts Shell".
+  const base = substantive(strippedBase) || title(root);
   const blower = base.toLowerCase();
   // Never offer the tapped thing back as its own child (stable loop).
   const selfName = name.toLowerCase();
   const genericComponents = [
-      c(`${base} Housing`, `Outer shell protecting the working parts of ${blower}.`, "component", "housing"),
-      c(`${base} Core`, `The working heart where ${blower} does its job.`, "assembly", "box"),
-      c("Fastener Set", `Screws, clips and press-fits holding it together.`, "component", "fastener"),
-      c("Connector Assembly", `Plugs, seals and joints linking ${blower} outward.`, "component", "wire"),
-      c("Control Element", `Switch, sensor or regulator running ${blower}.`, "assembly", "sensor"),
-      c("Base Materials", `Metal, polymer and coating inside ${blower}.`, "material", "raw"),
+      c(`${base} Shell`, `Outer layer holding the inside of ${blower} together.`, "component", "housing"),
+      c(`${base} Core`, `The heart of it — most of what ${blower} is.`, "assembly", "box"),
+      c("Holding Structure", `Whatever keeps ${blower} in one piece.`, "component", "box"),
+      c("Surface Finish", `The outside of ${blower} you see and touch.`, "component", "raw"),
+      c("Small Parts", `Bits inside ${blower} too small to name one by one.`, "component", "raw", "common", true),
+      c("Base Elements", `The atoms everything in ${blower} is built from.`, "element", "gem", "rare", true),
   ].filter((child) => child.name.toLowerCase() !== selfName);
   return {
     normalizedName: name,
     summary: `${name} in ${root} — its meaningful physical parts.`,
     components: genericComponents,
-    materials: ["steel", "polymer", "copper"],
-    funFact: `Real teardowns of ${blower} reveal the same pattern: shell, core, joints, controls.`,
-    originHint: `Its metals trace to mines; its polymers to oil and gas wells.`,
+    materials: [],
+    funFact: `Break ${blower} down far enough and you always reach raw ingredients.`,
+    originHint: `Farms, mines, wells and forests — everything starts in one of those.`,
   };
 }
