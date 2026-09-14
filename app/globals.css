@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #080908;
+  --ink: #0f100f;
+  --panel: #141513;
+  --panel-2: #1b1c1a;
+  --line-soft: rgba(237, 231, 223, 0.08);
+  --line-strong: rgba(237, 231, 223, 0.18);
+  --bone: #ede7db;
+  --faded: #a8a39a;
+  --dim: #8a8780;
+  --ghost: #3a3b38;
+  --signal: #ff4d00;
+  --signal-text: #ff8a4d;
+  --success: #c6f24e;
+  --stage-0: #0d0e0c;
+  --stage-1: #0d0e0c;
+  --stage-2: #121310;
+  --stage-3: #16150f;
+  --stage-4: #1a140d;
+  --stage-5: #1e130b;
+}
+
+html,
+body {
+  background: var(--void);
+  color: var(--bone);
+  font-family: var(--font-sans), "Inter Tight", Inter, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-serif-d {
+  font-family: var(--font-serif-d), "Instrument Serif", Georgia, serif;
+}
+.font-mono-l {
+  font-family: var(--font-mono-l), "JetBrains Mono", "IBM Plex Mono", monospace;
+}
+
+/* film grain + vignette */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+.vignette::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 49;
+  background: radial-gradient(120% 90% at 50% 8%, transparent 55%, rgba(0, 0, 0, 0.55));
+}
+
+.dotgrid {
+  background-image: radial-gradient(rgba(237, 231, 223, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.hairline {
+  border: 1px solid var(--line-soft);
+}
+
+/* touch targets: 44px minimum without changing visual size —
+ * use .tap for icon/✕ buttons, .tap-inline for text buttons in rows */
+.tap {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tap-inline {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.search-underline {
+  border-bottom: 1px solid var(--line-strong);
+  transition: border-color 0.2s ease;
+}
+.search-underline:focus-within {
+  border-bottom-color: var(--bone);
+}
+
+/* depth-tinted stage backgrounds (tokenized as --stage-* above) */
+.stage-0 { background: var(--stage-0); }
+.stage-1 { background: var(--stage-1); }
+.stage-2 { background: var(--stage-2); }
+.stage-3 { background: var(--stage-3); }
+.stage-4 { background: var(--stage-4); }
+.stage-5 { background: var(--stage-5); }
+
+@keyframes pulse-ring {
+  0% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 0; transform: scale(2.1); }
+}
+.hotspot-ring {
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.skeleton {
+  background: #1e1f1d;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+::selection {
+  background: var(--signal);
+  color: #080908;
+}
+
+/* themed browser surfaces: focus, caret, scrollbars */
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+input, textarea {
+  caret-color: var(--signal);
+}
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2b29 transparent;
+}
+
+.scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #2a2b29; border-radius: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-ring, .skeleton { animation: none; }
+  /* Tailwind loading pulse (used on loading copy) must also go still */
+  .animate-pulse { animation: none; }
+}
