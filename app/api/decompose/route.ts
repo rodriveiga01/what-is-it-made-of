@@ -88,7 +88,7 @@ export async function POST(req: Request) {
           return { ...live, source: "ai" as const };
         } catch (err) {
           // Log only the failure reason — never the key or full prompt.
-          console.warn(`[decompose] live AI miss (depth ${depth}):`, err instanceof Error ? err.message.slice(0, 120) : "unknown");
+          console.warn(`[decompose] live AI miss (depth ${depth}):`, err instanceof Error ? err.message.slice(0, 300) : "unknown");
         }
       }
       return { ...sanitizeResponse(generateFallback(norm, path, depth)), source: "fallback" as const };

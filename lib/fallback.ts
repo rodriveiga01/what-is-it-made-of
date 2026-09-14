@@ -337,6 +337,22 @@ function statorNode(): DecomposeResponse {
   };
 }
 
+/** Strip accumulated generic suffixes ("X Core" → "X") so repeated dives
+ *  through fallback layers converge instead of growing names forever
+ *  ("Logic Board Core Core Core"). Runs to a fixed point, capped. */
+function stripGenericSuffixes(name: string): string {
+  let out = name;
+  for (let i = 0; i < 3; i++) {
+    const next = out.replace(
+      /\s+(Core|Housing|Assembly|Unit|Module|Shell|Casing|Cover|Body|Frame|Set|Element)$/i,
+      "",
+    ).trim();
+    if (next === out || !next) break;
+    out = next;
+  }
+  return out || name;
+}
+
 function title(s: string): string {
   return s.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1));
 }
@@ -395,16 +411,18 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
 
   // Element-ish → provenance chain
   if (/(element|atom|carbon|copper|iron|lithium|silicon|gold|aluminum|aluminium|quartz|uranium|cobalt|nickel|neodymium)/.test(lower) || depth >= 5) {
-    return {
-      normalizedName: name,
-      summary: `Tracing ${name} back to where it comes from.`,
-      components: [
+    const selfEl = name.toLowerCase();
+    const elComponents = [
         c("Raw Source", `Mine, well or forest where ${name} begins.`, "assembly", "raw", "uncommon"),
         c("Refined Stock", `Cleaned, smelted or concentrated ${name}.`, "material", "metal"),
         c("Finished Material", `${name} ready for manufacturing.`, "material", "raw", "common", true),
         c("Deep Time Story", `${name} carries atoms older than the Earth itself.`, "element", "gem", "rare", true),
         c("Recycled Stream", `Recovered ${name} re-entering the supply chain.`, "material", "raw", "common", true),
-      ],
+    ].filter((child) => child.name.toLowerCase() !== selfEl);
+    return {
+      normalizedName: name,
+      summary: `Tracing ${name} back to where it comes from.`,
+      components: elComponents,
       materials: [lower.split(" ")[0] || "raw stock"],
       funFact: `Two-thirds of many metals ever mined are still in use today.`,
       originHint: `${name} ultimately traces to mines, wells, forests — and ancient stars.`,
@@ -430,20 +448,54 @@ export function generateFallback(target: string, ancestry: string[], depth: numb
     };
   }
 
-  // Generic physical breakdown — always specific to the named target
+  // Deep fallback must CONVERGE, never recurse: at depth 3+ return a
+  // terminal material/element set built from the suffix-stripped base noun,
+  // so threads bottom out even when live AI stays down.
+  if (depth >= 3) {
+    const base = stripGenericSuffixes(name);
+    const bl = base.toLowerCase();
+    // Never stack "Stock" onto something already called stock.
+    const stockName = /stocks?$/i.test(base) ? base : `${base} Stock`;
+    // Never offer the tapped thing back as its own child (stable loop).
+    const self = name.toLowerCase();
+    const components = [
+        c(stockName, `Bulk ${bl} shaped for this part.`, "material", "raw"),
+        c("Raw Feedstock", `Ore, crude or harvest behind ${bl}.`, "material", "raw"),
+        c("Processing Aid", `Heat, pressure or chemistry forming it.`, "component", "box", "common", true),
+        c("Base Element", `The atoms ${bl} is built from.`, "element", "gem", "rare", true),
+        c("Recycled Stream", `Recovered ${bl} re-entering the supply chain.`, "material", "raw", "common", true),
+    ].filter((child) => child.name.toLowerCase() !== self);
+    return {
+      normalizedName: name,
+      summary: `${base} inside ${root} — down to its raw ingredients.`,
+      components,
+      materials: [bl.split(" ")[0] || "raw stock"],
+      funFact: `Follow any material far enough and you reach a mine, a well, or a forest.`,
+      originHint: `${base} traces back to raw feedstock — ore, oil, sand or timber.`,
+    };
+  }
+
+  // Generic physical breakdown — always specific to the named target.
+  // Children compose from the suffix-stripped base so one fallback layer
+  // never stacks suffixes onto the previous layer's invented names.
+  const base = stripGenericSuffixes(name);
+  const blower = base.toLowerCase();
+  // Never offer the tapped thing back as its own child (stable loop).
+  const selfName = name.toLowerCase();
+  const genericComponents = [
+      c(`${base} Housing`, `Outer shell protecting the working parts of ${blower}.`, "component", "housing"),
+      c(`${base} Core`, `The working heart where ${blower} does its job.`, "assembly", "box"),
+      c("Fastener Set", `Screws, clips and press-fits holding it together.`, "component", "fastener"),
+      c("Connector Assembly", `Plugs, seals and joints linking ${blower} outward.`, "component", "wire"),
+      c("Control Element", `Switch, sensor or regulator running ${blower}.`, "assembly", "sensor"),
+      c("Base Materials", `Metal, polymer and coating inside ${blower}.`, "material", "raw"),
+  ].filter((child) => child.name.toLowerCase() !== selfName);
   return {
     normalizedName: name,
     summary: `${name} in ${root} — its meaningful physical parts.`,
-    components: [
-      c(`${name} Housing`, `Outer shell protecting the working parts of ${lower}.`, "component", "housing"),
-      c(`${name} Core`, `The working heart where ${lower} does its job.`, "assembly", "box"),
-      c("Fastener Set", `Screws, clips and press-fits holding it together.`, "component", "fastener"),
-      c("Connector Assembly", `Plugs, seals and joints linking ${lower} outward.`, "component", "wire"),
-      c("Control Element", `Switch, sensor or regulator running ${lower}.`, "assembly", "sensor"),
-      c("Base Materials", `Metal, polymer and coating inside ${lower}.`, "material", "raw"),
-    ],
+    components: genericComponents,
     materials: ["steel", "polymer", "copper"],
-    funFact: `Real teardowns of ${lower} reveal the same pattern: shell, core, joints, controls.`,
+    funFact: `Real teardowns of ${blower} reveal the same pattern: shell, core, joints, controls.`,
     originHint: `Its metals trace to mines; its polymers to oil and gas wells.`,
   };
 }
