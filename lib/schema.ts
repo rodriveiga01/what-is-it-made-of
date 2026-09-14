@@ -75,7 +75,34 @@ export type DecomposeRequest = z.infer<typeof DecomposeRequestSchema>;
 
 /** Semantic validation: dedup, clamp, slice. Returns issues list. */
 export function sanitizeResponse(raw: unknown): DecomposeResponse {
-  const parsed = DecomposeResponseSchema.parse(raw);
+  // Pre-normalize: live models (esp. non-Gemini ones) omit fields or use
+  // their own enum words. Fill shapes here so one missing description
+  // doesn't nuke an otherwise good layer; the filters below still drop
+  // anything genuinely unusable, and <3 survivors throws as before.
+  const pre = (raw && typeof raw === "object" ? { ...(raw as Record<string, unknown>) } : {}) as Record<string, unknown>;
+  if (Array.isArray(pre.components)) {    pre.components = pre.components
+      .filter((c) => c && typeof c === "object" && typeof (c as Record<string, unknown>).name === "string")
+      .map((c) => {
+        const o = c as Record<string, unknown>;
+        return {
+          name: o.name,
+          description: typeof o.description === "string" ? o.description : "",
+          type: typeof o.type === "string" ? o.type : "component",
+          iconHint: typeof o.iconHint === "string" ? o.iconHint : "box",
+          rarity: typeof o.rarity === "string" ? o.rarity : "common",
+          isTerminal: typeof o.isTerminal === "boolean" ? o.isTerminal : false,
+        };
+      });
+  }
+  // Materials arrive as objects/maps from some models — keep strings only.
+  if (Array.isArray(pre.materials)) {
+    pre.materials = pre.materials.filter((m): m is string => typeof m === "string");
+  } else if (typeof pre.materials === "string") {
+    pre.materials = [pre.materials];
+  } else {
+    delete pre.materials;
+  }
+  const parsed = DecomposeResponseSchema.parse(pre);
   const seen = new Set<string>();
   const deduped: DecompComponent[] = [];
   for (const c of parsed.components) {
