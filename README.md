@@ -1,8 +1,21 @@
+<div align="center">
+
 # What Is It Made Of?
 
-Type any physical thing. AI takes it apart layer by layer. How deep can you go?
+Type any physical thing. AI takes it apart layer by layer — down to atoms.
 
-A recursive teardown explorer: search an object, tap a component to open it further — parts become materials, materials become molecules, molecules become atoms. Built as a shared curiosity game for parents and kids. No accounts, no database, no canned content: every layer is model-generated.
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-149ECA?logo=react)](https://react.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+A recursive teardown explorer and shared curiosity game for parents and kids.
+No accounts, no database, no canned content — every layer is model-generated.
+
+![Home — search anything physical](docs/screenshots/home.png)
+![Exploring a tank, layer by layer](docs/screenshots/explore.png)
+
+</div>
 
 ## How it works
 
@@ -19,7 +32,7 @@ browser ──POST /api/decompose──▶ Next.js route ──▶ Gemini ──
 - **Three-level cache** (memory → localStorage → server) so repeats, back-navigation, and shared links cost nothing. Hover-prefetch warms caches without ever spending tokens.
 - **Token discipline.** Capped outputs, no repair-retries on client errors (429/4xx), rate limit (20 req/min/IP) that exempts cache hits and prefetch.
 
-## Getting Started
+## Getting started
 
 ```bash
 npm install
@@ -45,13 +58,13 @@ Without any key the app runs but every teardown shows the retry state — add at
 
 ## Scripts
 
-| Command          | Purpose                          |
-| ---------------- | -------------------------------- |
-| `npm run dev`    | Local dev server                 |
-| `npm run build`  | Production build                 |
-| `npm run start`  | Serve production build           |
-| `npm run typecheck` | Strict TypeScript check       |
-| `npm run verify` | Typecheck + build (pre-push gate) |
+| Command             | Purpose                     |
+| ------------------- | --------------------------- |
+| `npm run dev`       | Local dev server            |
+| `npm run build`     | Production build            |
+| `npm run start`     | Serve production build      |
+| `npm run typecheck` | Strict TypeScript check     |
+| `npm run verify`    | Typecheck + build (pre-push gate) |
 
 ## Project structure
 
@@ -69,11 +82,20 @@ lib/
   cache.ts            # server LRU + request dedup
   ratelimit.ts        # 20 req/min/IP (cache/prefetch exempt)
   store.ts            # localStorage progress + layer cache (quota-safe)
+docs/screenshots/     # README images (regenerate with headless Chrome)
 ```
 
-See [`PRODUCT.md`](PRODUCT.md) for product truth, [`DESIGN.md`](DESIGN.md) for the visual system, [`CONTRIBUTING.md`](CONTRIBUTING.md) to help out.
+## Docs
 
-## Known Limitations
+- [`PRODUCT.md`](PRODUCT.md) — product truth (what the app promises)
+- [`DESIGN.md`](DESIGN.md) — visual system (palette roles, type roles, components)
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, conventions, PR process
+
+## Known limitations
 
 - Live teardowns need at least one provider key; quotas are the bottleneck, not code.
 - Max depth 6 by design; English-only UI; history lives in the browser.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

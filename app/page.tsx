@@ -558,7 +558,7 @@ export default function Page() {
         /* ================= HOME ================= */
         <main className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="min-h-[72vh] flex flex-col items-center justify-center text-center">
-            <h1 className="font-serif-d leading-[0.95] tracking-[-0.02em] text-ink" style={{ fontSize: "clamp(48px, 8vw, 110px)" }}>
+            <h1 className="font-serif-d leading-[0.95] tracking-[-0.02em] text-ink w-full" style={{ fontSize: "clamp(40px, 8vw, 110px)" }}>
               <span className="text-soft">What do you want to</span>
               <br />
               <em>take apart?</em>
@@ -608,7 +608,7 @@ export default function Page() {
               </div>
             )}
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-5">
               {STARTERS.map((s, i) => (
                 <button
                   key={s}
