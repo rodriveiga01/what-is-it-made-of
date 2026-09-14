@@ -5,22 +5,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "#080908",
-        ink: "#0F100F",
-        panel: "#141513",
-        panel2: "#1B1C1A",
-        bone: "#EDE7DB",
-        faded: "#A8A39A",
-        dim: "#8A8780",
-        ghost: "#3A3B38",
+        // Daylight workshop: warm paper ground, white cards, warm ink text.
+        // Three accents with jobs: signal = action/energy, leaf = materials,
+        // pool = elements/origins. Muted trio all clear 4.5:1 on paper+card.
+        paper: "#FAF7F0",
+        card: "#FFFFFF",
+        tint: "#F1EBDD",
+        ink: "#20211C",
+        soft: "#55534C",
+        mute: "#6E6A62",
+        ghost: "#D9D3C2",
         signal: "#FF4D00",
-        signaltext: "#FF8A4D",
-        moss: "#C6F24E",
+        signaldeep: "#C74300",
+        leaf: "#527A1F",
+        pool: "#2F5FC0",
         line: {
-          faint: "rgba(237,231,223,0.08)",
-          DEFAULT: "rgba(237,231,223,0.12)",
-          strong: "rgba(237,231,223,0.2)",
-          bright: "rgba(237,231,223,0.28)",
+          faint: "rgba(32,33,28,0.08)",
+          DEFAULT: "rgba(32,33,28,0.14)",
+          strong: "rgba(32,33,28,0.22)",
+          bright: "rgba(32,33,28,0.32)",
         },
       },
       fontFamily: {

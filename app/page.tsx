@@ -27,7 +27,6 @@ const DEPTH_NAMES = ["OBJECT", "COMPONENTS", "PARTS + MATERIALS", "MATERIALS", "
 const SCALES = ["1 m", "10 cm", "1 cm", "1 mm", "1 µm", "1 nm", "atoms"];
 const LOADING_LINES = [
   "Taking it apart...",
-  "Unscrewing bolts...",
   "Sorting materials...",
   "Tracing origins...",
 ];
@@ -131,10 +130,10 @@ function Glyph({ kind }: { kind: string }) {
 
 function TypeTag({ t }: { t: DecompComponent["type"] }) {
   const map: Record<string, string> = {
-    assembly: "text-bone border-line-strong",
-    component: "text-faded border-line",
-    material: "text-signaltext border-signal/35",
-    element: "text-moss border-moss/30",
+    assembly: "text-ink border-line-strong",
+    component: "text-soft border-line",
+    material: "text-leaf border-leaf/35",
+    element: "text-pool border-pool/30",
   };
   return (
     <span className={`font-mono-l text-[10px] uppercase tracking-[0.12em] border rounded-xs px-1.5 py-0.5 ${map[t] ?? map.component}`}>
@@ -148,7 +147,7 @@ function RarityDot({ r }: { r: DecompComponent["rarity"] }) {
   return (
     <span
       className={`font-mono-l text-[10px] uppercase tracking-[0.12em] ${
-        r === "rare" ? "text-signaltext" : "text-faded"
+        r === "rare" ? "text-signaldeep" : "text-soft"
       }`}
     >
       {r === "rare" ? "● rare find" : "○ uncommon"}
@@ -295,12 +294,12 @@ export default function Page() {
       if (newDepth >= 4 && !next.celebrated.d4) {
         next.celebrated.d4 = true;
         next.celebrated.d2 = true;
-        c = { title: `Depth ${newDepth}`, sub: "You're smaller than a cell now. Fewer than 1 in 9 explorers go this far.", depth: newDepth };
+        c = { title: `Depth ${newDepth}`, sub: "Smaller than a cell now.", depth: newDepth };
       } else if (newDepth >= 2 && !next.celebrated.d2) {
         next.celebrated.d2 = true;
-        c = { title: "You went deeper", sub: "Most people stop at the surface. You're into what it's made of.", depth: newDepth };
+        c = { title: "You went deeper", sub: "Past the surface, into what it's made of.", depth: newDepth };
       } else if (newBest && newDepth >= 2) {
-        c = { title: "New personal depth", sub: `${newDepth} layers. That's dedication.`, depth: newDepth };
+        c = { title: "New personal depth", sub: `${newDepth} layers deep.`, depth: newDepth };
       }
       if (c) setCelebration(c);
       return next;
@@ -530,19 +529,19 @@ export default function Page() {
     <div className="min-h-screen">
       {/* ---------- top bar ---------- */}
       <header className="flex items-center justify-between px-5 md:px-8 py-4 max-w-[1280px] mx-auto">
-        <button onClick={goHome} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-bone hover:text-signaltext transition-colors">
+        <button onClick={goHome} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-ink hover:text-signaldeep transition-colors">
           WIIMO <span className="text-signal">●</span>
         </button>
         <div className="flex items-center gap-5">
           {stats && stats.objects > 0 && (
-            <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-dim hidden sm:inline">
+            <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-mute hidden sm:inline">
               {stats.objects} objects · {stats.specimens} specimens
             </span>
           )}
-          <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded hover:text-bone transition-colors">
+          <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft hover:text-ink transition-colors">
             Random
           </button>
-          <button onClick={() => setIndexOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded hover:text-bone transition-colors">
+          <button onClick={() => setIndexOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft hover:text-ink transition-colors">
             Index
           </button>
         </div>
@@ -552,11 +551,8 @@ export default function Page() {
         /* ================= HOME ================= */
         <main className="max-w-[1280px] mx-auto px-5 md:px-8">
           <div className="min-h-[72vh] flex flex-col items-center justify-center text-center">
-            <p className="font-mono-l text-[11px] uppercase tracking-[0.2em] text-dim mb-6">
-              Curiosity instrument — 001
-            </p>
-            <h1 className="font-serif-d leading-[0.95] tracking-[-0.02em] text-bone" style={{ fontSize: "clamp(48px, 8vw, 110px)" }}>
-              <span className="text-faded">What do you want to</span>
+            <h1 className="font-serif-d leading-[0.95] tracking-[-0.02em] text-ink" style={{ fontSize: "clamp(48px, 8vw, 110px)" }}>
+              <span className="text-soft">What do you want to</span>
               <br />
               <em>take apart?</em>
             </h1>
@@ -575,30 +571,30 @@ export default function Page() {
                 aria-label="What do you want to take apart?"
                 autoFocus
                 enterKeyHint="search"
-                className="flex-1 bg-transparent font-serif-d italic text-2xl placeholder:text-dim text-bone"
+                className="flex-1 bg-transparent font-serif-d italic text-2xl placeholder:text-mute text-ink"
               />
               <button
                 type="submit"
                 aria-label="Take apart"
-                className="tap font-mono-l text-xl text-faded hover:text-signal transition-colors px-2"
+                className="tap font-mono-l text-xl text-soft hover:text-signaldeep transition-colors px-2"
               >
                 →
               </button>
             </form>
 
             {searching && (
-              <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-faded mt-6 animate-pulse">
+              <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-soft mt-6 animate-pulse">
                 {LOADING_LINES[loadingLine]}
               </p>
             )}
             {homeError && (
-              <div className="mt-6 max-w-[520px] hairline rounded-md bg-panel px-5 py-4">
-                <p className="text-[15px] text-bone">{homeError}</p>
+              <div className="mt-6 max-w-[520px] hairline rounded-md bg-card px-5 py-4">
+                <p className="text-[15px] text-ink">{homeError}</p>
                 <div className="flex gap-4 mt-3 justify-center">
-                  <button onClick={() => startSearch(input || "Toaster")} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaltext">
+                  <button onClick={() => startSearch(input || "Toaster")} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaldeep">
                     Try again
                   </button>
-                  <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded">
+                  <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft">
                     Surprise me
                   </button>
                 </div>
@@ -606,29 +602,28 @@ export default function Page() {
             )}
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-              <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-dim">Popular</span>
               {STARTERS.map((s, i) => (
                 <button
                   key={s}
                   onClick={() => startSearch(s)}
-                  className="tap-inline font-mono-l text-[12px] text-faded hover:text-bone transition-colors"
+                  className="tap-inline font-mono-l text-[12px] text-soft hover:text-ink transition-colors"
                 >
-                  <span className="text-dim mr-1">0{i + 1}</span> {s}
+                  <span className="text-mute mr-1">0{i + 1}</span> {s}
                 </button>
               ))}
             </div>
 
             {progress && progress.recent.length > 0 && (
               <div className="mt-10 w-full max-w-[640px]">
-                <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-dim mb-3 text-left">
-                  Recently taken apart
+                <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-mute mb-3 text-left">
+                  Recent
                 </p>
                 <div className="flex gap-2 overflow-x-auto scroll-thin pb-2">
                   {progress.recent.map((r) => (
                     <button
                       key={r}
                       onClick={() => startSearch(r)}
-                      className="hairline rounded-md bg-panel hover:bg-panel2 transition-colors px-4 py-2.5 font-serif-d text-lg whitespace-nowrap min-h-[44px] inline-flex items-center"
+                      className="hairline rounded-md bg-card hover:bg-tint transition-colors px-4 py-2.5 font-serif-d text-lg whitespace-nowrap min-h-[44px] inline-flex items-center"
                     >
                       {r}
                     </button>
@@ -641,13 +636,13 @@ export default function Page() {
           {/* how it works */}
           <div className="grid md:grid-cols-3 gap-px bg-line-faint border border-line-faint rounded-lg overflow-hidden mb-16">
             {[
-              ["01 / Search", "Name anything physical — a tank, a pen, your phone."],
-              ["02 / Take apart", "The AI splits it into meaningful parts. Tap the one you're curious about."],
-              ["03 / Go deeper", "Parts become materials, materials become origins. How far down can you get?"],
+              ["01 / Search", "Name anything physical."],
+              ["02 / Open", "Tap a part to take it apart."],
+              ["03 / Go deeper", "Parts become materials. How far down?"],
             ].map(([t, d]) => (
-              <div key={t} className="bg-void px-6 py-6 text-left">
-                <p className="font-mono-l text-[11px] uppercase tracking-[0.16em] text-signaltext mb-2">{t}</p>
-                <p className="text-[15px] text-faded leading-relaxed">{d}</p>
+              <div key={t} className="bg-paper px-6 py-6 text-left">
+                <p className="font-mono-l text-[11px] uppercase tracking-[0.16em] text-signaldeep mb-2">{t}</p>
+                <p className="text-[15px] text-soft leading-relaxed">{d}</p>
               </div>
             ))}
           </div>
@@ -656,18 +651,18 @@ export default function Page() {
         /* ================= EXPLORE ================= */
         <main className="max-w-[1280px] mx-auto px-4 md:px-8 pb-24">
           {/* breadcrumb — solid bg (no backdrop-blur) to avoid a backdrop-filter composite on every scroll frame */}
-          <div className="sticky top-0 z-30 bg-void py-3 border-b border-line-faint">
+          <div className="sticky top-0 z-30 bg-paper py-3 border-b border-line-faint">
             <div className="flex items-center gap-2 overflow-x-auto scroll-thin">
-              <button onClick={goHome} className="tap font-mono-l text-[11px] text-faded hover:text-bone shrink-0 px-1" aria-label="Back to search">
+              <button onClick={goHome} className="tap font-mono-l text-[11px] text-soft hover:text-ink shrink-0 px-1" aria-label="Back to search">
                 ‹ ALL
               </button>
               {path.map((p, i) => (
                 <span key={`${p}-${i}`} className="flex items-center gap-2 shrink-0">
-                  <span className="font-mono-l text-[11px] text-dim">/</span>
+                  <span className="font-mono-l text-[11px] text-mute">/</span>
                   <button
                     onClick={() => jumpTo(i)}
                     className={`tap-inline px-1 font-mono-l text-[11px] uppercase tracking-[0.12em] transition-colors ${
-                      i === path.length - 1 ? "text-bone" : "text-faded hover:text-bone"
+                      i === path.length - 1 ? "text-ink" : "text-soft hover:text-ink"
                     }`}
                   >
                     {p}
@@ -675,7 +670,7 @@ export default function Page() {
                 </span>
               ))}
               <div className="flex-1" />
-              <button onClick={() => setShareOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.12em] text-faded hover:text-bone shrink-0">
+              <button onClick={() => setShareOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.12em] text-soft hover:text-ink shrink-0">
                 Share
               </button>
             </div>
@@ -683,35 +678,35 @@ export default function Page() {
 
           {/* depth header */}
           <div className="flex items-center gap-4 mt-6 mb-2">
-            <span className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-signaltext">
+            <span className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-signaldeep">
               Depth {depth} · {depthName(depth)}
             </span>
             <div className="flex gap-1.5">
               {Array.from({ length: 7 }).map((_, i) => (
                 <span
                   key={i}
-                  className={`w-1.5 h-1.5 rounded-full ${i <= depth ? (i === depth ? "bg-signal" : "bg-bone") : "bg-ghost"}`}
+                  className={`w-1.5 h-1.5 rounded-full ${i <= depth ? (i === depth ? "bg-signal" : "bg-ink") : "bg-ghost"}`}
                 />
               ))}
             </div>
-            <span className="font-mono-l text-[11px] text-dim ml-auto">scale ≈ {SCALES[Math.min(depth, SCALES.length - 1)]}</span>
+            <span className="font-mono-l text-[11px] text-mute ml-auto">scale ≈ {SCALES[Math.min(depth, SCALES.length - 1)]}</span>
           </div>
 
           {searching && (
-            <div className="hairline rounded-md bg-panel px-5 py-3 mt-2 flex items-center gap-3" role="status">
+            <div className="hairline rounded-md bg-card px-5 py-3 mt-2 flex items-center gap-3" role="status">
               <span className="w-1.5 h-1.5 rounded-full bg-signal animate-pulse shrink-0" />
-              <p className="font-mono-l text-[11px] uppercase tracking-[0.16em] text-faded animate-pulse">
+              <p className="font-mono-l text-[11px] uppercase tracking-[0.16em] text-soft animate-pulse">
                 Taking apart {searchQuery || "…"} — {LOADING_LINES[loadingLine]}
               </p>
             </div>
           )}
           {exploreError && !searching && (
-            <div className="hairline rounded-md bg-panel px-5 py-4 mt-2 flex flex-wrap items-center gap-3">
-              <p className="text-[14px] text-bone flex-1 min-w-[200px]">{exploreError}</p>
-              <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaltext">
+            <div className="hairline rounded-md bg-card px-5 py-4 mt-2 flex flex-wrap items-center gap-3">
+              <p className="text-[14px] text-ink flex-1 min-w-[200px]">{exploreError}</p>
+              <button onClick={surprise} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaldeep">
                 Surprise me
               </button>
-              <button onClick={() => setExploreError(null)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-dim">
+              <button onClick={() => setExploreError(null)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-mute">
                 Dismiss
               </button>
             </div>
@@ -727,8 +722,8 @@ export default function Page() {
                 return (
                   <section key={`${layer.normalizedName}-${i}`} className="opacity-70">
                     <div className="flex items-baseline gap-3">
-                      <span className="font-mono-l text-[10px] text-dim uppercase tracking-[0.16em]">L{i}</span>
-                      <button onClick={() => jumpTo(i)} className="tap-inline font-serif-d text-2xl text-bone/90 hover:text-bone text-left">
+                      <span className="font-mono-l text-[10px] text-mute uppercase tracking-[0.16em]">L{i}</span>
+                      <button onClick={() => jumpTo(i)} className="tap-inline font-serif-d text-2xl text-ink/90 hover:text-ink text-left">
                         {layer.normalizedName}
                       </button>
                     </div>
@@ -740,7 +735,7 @@ export default function Page() {
                             jumpTo(i);
                             setTimeout(() => dive(comp, i), 60);
                           }}
-                          className="tap-inline hairline rounded-sm bg-panel px-3 text-[13px] text-faded hover:text-bone hover:border-line-bright whitespace-nowrap transition-colors"
+                          className="tap-inline hairline rounded-sm bg-card px-3 text-[13px] text-soft hover:text-ink hover:border-line-bright whitespace-nowrap transition-colors"
                         >
                           {comp.name} →
                         </button>
@@ -758,14 +753,14 @@ export default function Page() {
                   transition={{ duration: instant(0.5), ease: [0.22, 1, 0.36, 1] }}
                 >
                   {layer.failed ? (
-                    <div className="hairline rounded-lg bg-panel px-6 py-10 text-center dotgrid">
+                    <div className="hairline rounded-lg bg-card px-6 py-10 text-center dotgrid">
                       <p className="font-serif-d text-3xl mb-2">{layer.failMessage || "We couldn't pry this open."}</p>
-                      <p className="text-faded text-[15px]">The instrument slipped. Nothing is lost — your thread is intact.</p>
+                      <p className="text-soft text-[15px]">Nothing is lost — your thread is intact.</p>
                       <div className="flex gap-5 justify-center mt-5">
-                        <button onClick={retryTop} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaltext">
+                        <button onClick={retryTop} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaldeep">
                           Retry
                         </button>
-                        <button onClick={() => jumpTo(Math.max(0, layers.length - 2))} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded">
+                        <button onClick={() => jumpTo(Math.max(0, layers.length - 2))} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft">
                           Go up one level
                         </button>
                       </div>
@@ -773,62 +768,61 @@ export default function Page() {
                   ) : (
                     <>
                       <div className={`hairline rounded-lg px-6 md:px-10 py-8 md:py-10 dotgrid stage-${Math.min(layerDepth, 5)}`}>
-                        <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-dim">
+                        <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-soft">
                           Layer {layerDepth} — {depthName(layerDepth)}
                         </p>
-                        <h2 className="font-serif-d text-bone leading-[0.95] mt-2" style={{ fontSize: "clamp(40px, 6vw, 72px)" }}>
+                        <h2 className="font-serif-d text-ink leading-[0.95] mt-2" style={{ fontSize: "clamp(40px, 6vw, 72px)" }}>
                           {layer.normalizedName}
                         </h2>
                         {layer.parentDescription && (
-                          <p className="font-serif-d italic text-xl text-faded mt-3 max-w-[640px]">
+                          <p className="font-serif-d italic text-xl text-soft mt-3 max-w-[640px]">
                             “{layer.parentDescription}”
                           </p>
                         )}
-                        <p className="text-faded text-[16px] leading-relaxed mt-3 max-w-[640px]">{layer.summary}</p>
+                        <p className="text-soft text-[16px] leading-relaxed mt-3 max-w-[640px]">{layer.summary}</p>
                         {layer.materials.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-4">
-                            <span className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-dim py-1">Made of</span>
+                            <span className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-soft py-1">Made of</span>
                             {layer.materials.map((m) => (
-                              <span key={m} className="font-mono-l text-[11px] text-bone border border-line-strong rounded-full px-3 py-1">
+                              <span key={m} className="font-mono-l text-[11px] text-ink border border-line-strong rounded-full px-3 py-1">
                                 {m}
                               </span>
                             ))}
                           </div>
                         )}
                         {layer.funFact && (
-                          <div className="mt-5 border-l-2 border-signal pl-4 max-w-[640px]">
-                            <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-signaltext mb-1">Field note</p>
-                            <p className="text-[15px] text-bone leading-relaxed">{layer.funFact}</p>
+                          <div className="mt-5 max-w-[640px] rounded-md bg-card hairline px-4 py-3">
+                            <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-signaldeep mb-1">Field note</p>
+                            <p className="text-[15px] text-ink leading-relaxed">{layer.funFact}</p>
                           </div>
                         )}
                         {layer.originHint && (
                           <div className="mt-4 max-w-[640px]">
-                            <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-dim mb-1">Origin trace</p>
-                            <p className="text-[14px] text-faded leading-relaxed">{layer.originHint}</p>
+                            <p className="text-[14px] text-soft leading-relaxed">{layer.originHint}</p>
                           </div>
                         )}
                       </div>
 
                       {layerDepth >= MAX_DEPTH ? (
-                        <div className="hairline rounded-lg bg-panel px-6 py-8 mt-4 text-center">
-                          <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-moss mb-2">Bedrock reached</p>
+                        <div className="hairline rounded-lg bg-card px-6 py-8 mt-4 text-center">
+                          <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-leaf mb-2">Bedrock reached</p>
                           <p className="font-serif-d text-3xl">You followed matter to its source.</p>
-                          <p className="text-faded mt-2 text-[15px] max-w-[520px] mx-auto">
-                            {layer.originHint || "Every atom here is older than the Earth itself."} Jump sideways into a sibling — or share how far you got.
+                          <p className="text-soft mt-2 text-[15px] max-w-[520px] mx-auto">
+                            {layer.originHint || "Every atom here is older than the Earth itself."}
                           </p>
                           <div className="flex gap-5 justify-center mt-5">
-                            <button onClick={() => setShareOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaltext">
+                            <button onClick={() => setShareOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaldeep">
                               Share this thread
                             </button>
-                            <button onClick={() => jumpTo(0)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded">
+                            <button onClick={() => jumpTo(0)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft">
                               Back to surface
                             </button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <p id="components-prompt" className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-dim mt-8 mb-3">
-                            What is it made of? — tap one to take it apart
+                          <p id="components-prompt" className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-mute mt-8 mb-3">
+                            Tap one to open it
                           </p>
                           <div role="group" aria-labelledby="components-prompt" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {layer.components.map((comp, ci) => (
@@ -841,23 +835,23 @@ export default function Page() {
                                 onMouseEnter={() => queuePrefetch(comp.name, path.slice(0, i + 1))}
                                 onMouseLeave={() => cancelPrefetch(comp.name, path.slice(0, i + 1))}
                                 onFocus={() => queuePrefetch(comp.name, path.slice(0, i + 1))}
-                                className={`group text-left rounded-md bg-panel hover:bg-panel2 transition-colors p-5 flex flex-col gap-2 min-h-[150px] ${
+                                className={`group text-left rounded-md bg-card hover:bg-tint transition-colors p-5 flex flex-col gap-2 min-h-[150px] ${
                                   comp.rarity === "rare"
                                     ? "border border-signal/45"
                                     : "hairline hover:border-line-bright"
                                 }`}
                               >
-                                <div className="flex items-center justify-between text-faded group-hover:text-bone transition-colors">
+                                <div className="flex items-center justify-between text-soft group-hover:text-ink transition-colors">
                                   <Glyph kind={comp.iconHint} />
                                   <span className="font-mono-l text-[11px]">0{ci + 1}</span>
                                 </div>
-                                <span className="font-serif-d text-[22px] leading-tight text-bone">{comp.name}</span>
-                                <span className="text-[13.5px] text-faded leading-snug flex-1">{comp.description}</span>
+                                <span className="font-serif-d text-[22px] leading-tight text-ink">{comp.name}</span>
+                                <span className="text-[13.5px] text-soft leading-snug flex-1">{comp.description}</span>
                                 <span className="flex items-center justify-between mt-1">
                                   <TypeTag t={comp.type} />
                                   <RarityDot r={comp.rarity} />
                                 </span>
-                                <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-dim group-hover:text-signaltext transition-colors mt-1">
+                                <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-mute group-hover:text-signaldeep transition-colors mt-1">
                                   {comp.isTerminal || comp.type === "element" ? "Trace origin →" : "Take apart →"}
                                 </span>
                               </motion.button>
@@ -879,17 +873,17 @@ export default function Page() {
                   initial={reduceMotion ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="hairline rounded-lg bg-panel px-6 py-10 text-center"
+                  className="hairline rounded-lg bg-card px-6 py-10 text-center"
                 >
-                  <p className="font-mono-l text-[11px] uppercase tracking-[0.2em] text-signaltext">
+                  <p className="font-mono-l text-[11px] uppercase tracking-[0.2em] text-signaldeep">
                     Diving — {pending.target}
                   </p>
-                  <p className="font-serif-d italic text-2xl text-faded mt-2 animate-pulse">
+                  <p className="font-serif-d italic text-2xl text-soft mt-2 animate-pulse">
                     {LOADING_LINES[loadingLine]}
                   </p>
                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
                     {Array.from({ length: 6 }).map((_, k) => (
-                      <div key={k} className="rounded-md bg-ink p-5 min-h-[150px] flex flex-col gap-3">
+                      <div key={k} className="rounded-md bg-card p-5 min-h-[150px] flex flex-col gap-3">
                         <div className="skeleton h-5 w-16 rounded-xs" />
                         <div className="skeleton h-6 w-3/4 rounded-xs" />
                         <div className="skeleton h-4 w-full rounded-xs" />
@@ -904,13 +898,13 @@ export default function Page() {
 
           {/* also explore */}
           <div className="mt-14 border-t border-line-faint pt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-dim">Also take apart</span>
+            <span className="font-mono-l text-[11px] uppercase tracking-[0.14em] text-mute">Also</span>
             {ALSO.map((s) => (
-              <button key={s} onClick={() => startSearch(s)} className="tap-inline font-mono-l text-[12px] text-faded hover:text-bone transition-colors">
+              <button key={s} onClick={() => startSearch(s)} className="tap-inline font-mono-l text-[12px] text-soft hover:text-ink transition-colors">
                 {s}
               </button>
             ))}
-            <button onClick={surprise} className="tap-inline font-mono-l text-[12px] text-signaltext ml-auto">
+            <button onClick={surprise} className="tap-inline font-mono-l text-[12px] text-signaldeep ml-auto">
               Surprise me →
             </button>
           </div>
@@ -922,18 +916,18 @@ export default function Page() {
       {celebration && reduceMotion && (
         <div
           role="status"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hairline rounded-md bg-panel px-5 py-4 flex items-center gap-4 w-[calc(100%-2.5rem)] max-w-[520px]"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hairline rounded-md bg-card px-5 py-4 flex items-center gap-4 w-[calc(100%-2.5rem)] max-w-[520px] shadow-[0_12px_32px_-12px_rgba(32,33,28,0.3)]"
         >
-          <span className="font-serif-d text-4xl text-bone leading-none shrink-0">{celebration.depth}</span>
+          <span className="font-serif-d text-4xl text-ink leading-none shrink-0">{celebration.depth}</span>
           <span className="flex-1 min-w-0">
-            <span className="block font-mono-l text-[10px] uppercase tracking-[0.18em] text-signaltext">
+            <span className="block font-mono-l text-[10px] uppercase tracking-[0.18em] text-signaldeep">
               Layers deep — {celebration.title}
             </span>
-            <span className="block text-[14px] text-faded mt-1 leading-snug">{celebration.sub}</span>
+            <span className="block text-[14px] text-soft mt-1 leading-snug">{celebration.sub}</span>
           </span>
           <button
             onClick={() => setCelebration(null)}
-            className="tap font-mono-l text-[12px] text-dim px-2 shrink-0"
+            className="tap font-mono-l text-[12px] text-mute px-2 shrink-0"
             aria-label="Dismiss celebration"
           >
             ✕
@@ -954,19 +948,18 @@ export default function Page() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setCelebration(null)}
-            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center text-center px-6 cursor-pointer"
+            className="fixed inset-0 z-[60] bg-paper/85 backdrop-blur-sm flex items-center justify-center text-center px-6 cursor-pointer"
           >
             <div>
-              <p className="font-serif-d text-bone leading-none" style={{ fontSize: "clamp(80px, 16vw, 180px)" }}>
+              <p className="font-serif-d text-ink leading-none" style={{ fontSize: "clamp(80px, 16vw, 180px)" }}>
                 {celebration.depth}
               </p>
-              <p className="font-mono-l text-[11px] uppercase tracking-[0.24em] text-signaltext mt-1">Layers deep</p>
-              <h2 id="celebration-title" data-dialog-title tabIndex={-1} className="font-serif-d italic text-2xl text-bone mt-4">{celebration.title}</h2>
-              <p className="text-faded mt-1 max-w-[420px] mx-auto">{celebration.sub}</p>
-              <p className="font-mono-l text-[11px] uppercase tracking-[0.16em] text-dim mt-6">Keep taking apart ↓</p>
+              <p className="font-mono-l text-[11px] uppercase tracking-[0.24em] text-signaldeep mt-1">Layers deep</p>
+              <h2 id="celebration-title" data-dialog-title tabIndex={-1} className="font-serif-d italic text-2xl text-ink mt-4">{celebration.title}</h2>
+              <p className="text-soft mt-1 max-w-[420px] mx-auto">{celebration.sub}</p>
               <button
                 onClick={() => setCelebration(null)}
-                className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.16em] text-faded hover:text-bone mt-4"
+                className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.16em] text-soft hover:text-ink mt-4"
                 aria-label="Dismiss celebration"
               >
                 Dismiss
@@ -985,7 +978,7 @@ export default function Page() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShareOpen(false)}
-            className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center px-5"
+            className="fixed inset-0 z-[60] bg-paper/85 backdrop-blur-sm flex items-center justify-center px-5"
           >
             <div
               ref={shareDialogRef}
@@ -995,35 +988,32 @@ export default function Page() {
               tabIndex={-1}
               onKeyDown={(e) => trapTab(e, shareDialogRef)}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-[560px] rounded-lg bg-ink border border-line p-8"
+              className="w-full max-w-[560px] rounded-lg bg-card border border-line p-8 shadow-[0_1px_0_rgba(32,33,28,0.04),0_24px_48px_-16px_rgba(32,33,28,0.25)]"
             >
-              <p className="font-mono-l text-[10px] uppercase tracking-[0.2em] text-dim">
-                What is it made of? — Depth {depth}
+              <p className="font-mono-l text-[10px] uppercase tracking-[0.2em] text-mute">
+                Depth {depth}
               </p>
               <h2 id="share-title" data-dialog-title tabIndex={-1} className="font-serif-d italic text-5xl mt-2">{path[path.length - 1]}</h2>
-              <p className="text-faded mt-3 text-[15px] leading-relaxed">{path.join(" → ")}</p>
-              {current?.funFact && <p className="text-bone mt-3 text-[15px]">{current.funFact}</p>}
-              <p className="font-mono-l text-[11px] text-dim mt-4 break-all">{shareUrl}</p>
+              <p className="text-soft mt-3 text-[15px] leading-relaxed">{path.join(" → ")}</p>
+              {current?.funFact && <p className="text-ink mt-3 text-[15px]">{current.funFact}</p>}
+              <p className="font-mono-l text-[11px] text-mute mt-4 break-all">{shareUrl}</p>
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => copyShare(threadText)}
-                  className="min-h-[44px] flex-1 bg-bone text-void font-mono-l text-[12px] uppercase tracking-[0.12em] rounded-sm py-3 hover:bg-white transition-colors"
+                  className="min-h-[44px] flex-1 bg-signaldeep text-white font-mono-l text-[12px] uppercase tracking-[0.12em] rounded-sm py-3 hover:bg-signal transition-colors"
                 >
                   {copied ? "Copied" : "Copy thread"}
                 </button>
                 <button
                   onClick={() => copyShare(shareUrl)}
-                  className="min-h-[44px] flex-1 border border-line-strong font-mono-l text-[12px] uppercase tracking-[0.12em] rounded-sm py-3 text-bone hover:border-bone transition-colors"
+                  className="min-h-[44px] flex-1 border border-line-strong font-mono-l text-[12px] uppercase tracking-[0.12em] rounded-sm py-3 text-ink hover:border-ink transition-colors"
                 >
                   Copy link
                 </button>
-                <button onClick={() => setShareOpen(false)} className="tap font-mono-l text-[12px] text-dim px-2" aria-label="Close share dialog">
+                <button onClick={() => setShareOpen(false)} className="tap font-mono-l text-[12px] text-mute px-2" aria-label="Close share dialog">
                   ✕
                 </button>
               </div>
-              <p className="font-mono-l text-[10px] uppercase tracking-[0.14em] text-dim mt-4">
-                Thread copied. Dare someone to go deeper.
-              </p>
             </div>
           </motion.div>
         )}
@@ -1038,7 +1028,7 @@ export default function Page() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIndexOpen(false)}
-            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-ink/25 backdrop-blur-sm"
           >
             <motion.div
               ref={indexDialogRef}
@@ -1052,11 +1042,10 @@ export default function Page() {
               exit={{ x: 80, opacity: 0 }}
               transition={{ duration: instant(0.3), ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-0 h-full w-full max-w-[380px] bg-panel border-l border-line p-7 overflow-y-auto"
+              className="absolute right-0 top-0 h-full w-full max-w-[380px] bg-card border-l border-line p-7 overflow-y-auto shadow-[-16px_0_32px_-16px_rgba(32,33,28,0.2)]"
             >
               <div className="flex items-center justify-between">
-                <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-dim">Your curiosity index</p>
-                <button onClick={() => setIndexOpen(false)} className="tap text-faded hover:text-bone text-lg" aria-label="Close curiosity index">✕</button>
+                <button onClick={() => setIndexOpen(false)} className="tap text-soft hover:text-ink text-lg ml-auto" aria-label="Close curiosity index">✕</button>
               </div>
               <h2 id="index-title" data-dialog-title tabIndex={-1} className="font-serif-d italic text-3xl mt-2">Not a score. A souvenir.</h2>
               {stats ? (
@@ -1068,21 +1057,21 @@ export default function Page() {
                       ["Specimens", `${stats.specimens}`],
                       ["Rare finds", `${stats.rares}`],
                     ].map(([k, v]) => (
-                      <div key={k} className="bg-panel p-4">
-                        <p className="font-mono-l text-2xl text-bone">{v}</p>
-                        <p className="font-mono-l text-[10px] uppercase tracking-[0.14em] text-dim mt-1">{k}</p>
+                      <div key={k} className="bg-card p-4">
+                        <p className="font-mono-l text-2xl text-ink">{v}</p>
+                        <p className="font-mono-l text-[10px] uppercase tracking-[0.14em] text-mute mt-1">{k}</p>
                       </div>
                     ))}
                   </div>
                   {stats.deepestThread.length > 0 && (
-                    <p className="text-[13.5px] text-faded mt-4 leading-relaxed">
+                    <p className="text-[13.5px] text-soft mt-4 leading-relaxed">
                       Deepest: {stats.deepestThread.join(" → ")}
                     </p>
                   )}
-                  <p className="text-[13.5px] text-faded mt-2 leading-relaxed">Your mind goes {stats.realm}.</p>
+                  <p className="text-[13.5px] text-soft mt-2 leading-relaxed">Your mind goes {stats.realm}.</p>
                   {progress && progress.recent.length > 0 && (
                     <>
-                      <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-dim mt-6 mb-2">Cabinet of curiosities</p>
+                      <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-mute mt-6 mb-2">Recent</p>
                       <div className="flex flex-col gap-1.5">
                         {progress.recent.map((r) => (
                           <button
@@ -1091,7 +1080,7 @@ export default function Page() {
                               setIndexOpen(false);
                               startSearch(r);
                             }}
-                            className="text-left font-serif-d text-lg text-faded hover:text-bone transition-colors tap-inline"
+                            className="text-left font-serif-d text-lg text-soft hover:text-ink transition-colors tap-inline"
                           >
                             {r} →
                           </button>
@@ -1109,13 +1098,13 @@ export default function Page() {
                       a.click();
                       URL.revokeObjectURL(url);
                     }}
-                    className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-faded hover:text-bone mt-6"
+                    className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-soft hover:text-ink mt-6"
                   >
                     Download my cabinet (.json)
                   </button>
                 </>
               ) : (
-                <p className="text-faded mt-6">Every thing you take apart lives here.</p>
+                <p className="text-soft mt-6">Every thing you take apart lives here.</p>
               )}
             </motion.div>
           </motion.div>

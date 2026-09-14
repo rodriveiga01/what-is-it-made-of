@@ -29,7 +29,7 @@ export async function decomposeWithGroq(
         model,
         temperature: 0.35,
         // Teardowns are small: cap output so verbosity can't burn tokens.
-        max_tokens: 1200,
+        max_tokens: 900,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: `${SYSTEM}\nReturn a single JSON object with keys: normalizedName, summary, components, materials, funFact, originHint.` },

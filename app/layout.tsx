@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#080908",
+  themeColor: "#FAF7F0",
   width: "device-width",
   initialScale: 1,
 };
@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serifD.variable} ${sans.variable} ${monoL.variable}`}>
-      <body className="grain vignette min-h-screen">{children}</body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }

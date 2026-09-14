@@ -27,11 +27,11 @@ Living-room / kitchen-table use on desktop or phone, in short sessions: search a
 - Confirmed functionality: natural-language search normalized to physical objects; structured-AI decomposition one layer per request (5–8 parts); recursive diving to depth 6 with bedrock/origin transition; breadcrumbs and collapsible ancestors; rare finds; depth celebrations; personal collection and stats; shareable threads; curated fallback KB plus generative fallback when live AI is unavailable or over quota.
 - Technical constraints: Gemini backend over server-side routes only (key never reaches the browser); structured JSON output validated by schema; 20 req/min/IP rate limit; non-physical input rejected with guidance; no login, no database.
 - Terminology: object → components → materials → origin; "depth" counts layers below the root; "rare find" marks surprising origins/scales.
-- Explicitly undecided: kid-safety/content-sensitivity review for AI output; whether the current dark adult-leaning visual identity fits the parents-&-kids audience (visual replacement explicitly allowed).
+- Explicitly undecided: kid-safety/content-sensitivity review for AI output.
 
 ## Brand Commitments
 
-Working name "WIIMO" with a lab-at-night voice (field notes, origin traces, quiet depth celebrations). Neither the name nor the current visual identity is locked — future work may rethink them. The only locked product facts are the recursive teardown loop, the Gemini backend, and instant no-login use.
+Working name "WIIMO" with a daylight-workbench voice (field notes, origin traces, quiet depth celebrations). Neither the name nor the current visual identity is locked — future work may rethink them. The only locked product facts are the recursive teardown loop, the Gemini backend, and instant no-login use.
 
 ## Evidence on Hand
 

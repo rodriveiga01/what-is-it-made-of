@@ -38,4 +38,4 @@ Next.js 15 (App Router) · React 19 · Tailwind CSS · framer-motion · zod · G
 - Live decomposition needs `GEMINI_API_KEY`; without it (or when its quota is spent) the app tries `GROQ_API_KEY` if set, then serves curated fallback content.
 - API is rate-limited to 20 req/min per IP.
 - No accounts or database — history lives in the browser's localStorage.
-- Dark-only visual identity, English-only UI.
+- English-only UI.
