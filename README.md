@@ -14,7 +14,7 @@ browser ──POST /api/decompose──▶ Next.js route ──▶ Gemini ──
 ```
 
 - **AI-only.** The app presents; the model thinks. There is no fallback content — if all providers are down, the UI shows a retry state, never invented parts.
-- **Two providers, automatic failover.** Gemini first, Groq free tier second. Both responses pass through the same zod validation (`lib/schema.ts`) which coerces off-enum values, drops unusable parts, and rejects thin layers.
+- **Two providers, automatic failover.** Gemini first, Groq second. Both are here for one reason: they hand out free-tier API keys with no credit card, so the app runs on $0. If either key is missing or its quota is spent, the chain moves on silently. Both responses pass through the same zod validation (`lib/schema.ts`) which coerces off-enum values, drops unusable parts, and rejects thin layers.
 - **Composition ladder.** The prompt enforces assemblies → components → materials → molecules → elements by depth, ending at terminal atoms (max depth 6, "bedrock").
 - **Three-level cache** (memory → localStorage → server) so repeats, back-navigation, and shared links cost nothing. Hover-prefetch warms caches without ever spending tokens.
 - **Token discipline.** Capped outputs, no repair-retries on client errors (429/4xx), rate limit (20 req/min/IP) that exempts cache hits and prefetch.
