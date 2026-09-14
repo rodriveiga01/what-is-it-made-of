@@ -57,11 +57,9 @@ export type DecompComponent = z.infer<typeof ComponentSchema>;
 
 export const DecomposeResponseSchema = z.object({
   normalizedName: z.string().min(2).max(64).transform(cleanText),
-  summary: z.string().min(8).max(220).transform(cleanText),
+  summary: z.string().min(8).max(160).transform(cleanText),
   components: z.array(ComponentSchema).min(3).max(10),
   materials: z.array(z.string().min(1).max(40).transform(cleanText)).max(6).default([]),
-  funFact: z.string().max(220).transform(cleanText).default(""),
-  originHint: z.string().max(220).transform(cleanText).optional(),
 });
 export type DecomposeResponse = z.infer<typeof DecomposeResponseSchema>;
 
@@ -80,6 +78,16 @@ export function sanitizeResponse(raw: unknown): DecomposeResponse {
   // doesn't nuke an otherwise good layer; the filters below still drop
   // anything genuinely unusable, and <3 survivors throws as before.
   const pre = (raw && typeof raw === "object" ? { ...(raw as Record<string, unknown>) } : {}) as Record<string, unknown>;
+  // Models sometimes file the answer parts under materials instead of
+  // components (empty components + named objects in materials): promote.
+  if (
+    (!Array.isArray(pre.components) || pre.components.length === 0) &&
+    Array.isArray(pre.materials) &&
+    pre.materials.some((m) => m && typeof m === "object")
+  ) {
+    pre.components = pre.materials;
+    pre.materials = [];
+  }
   if (Array.isArray(pre.components)) {    pre.components = pre.components
       .filter((c) => c && typeof c === "object" && typeof (c as Record<string, unknown>).name === "string")
       .map((c) => {

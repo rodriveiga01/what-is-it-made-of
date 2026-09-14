@@ -3,7 +3,7 @@ import { SYSTEM, buildPrompt } from "./gemini";
 
 /** Second live provider behind Gemini: Groq's free developer tier over its
  *  OpenAI-compatible endpoint. Plain fetch — no extra dependency.
- *  Throws on any failure so the route can fall through to local fallback. */
+ *  Throws on any failure so the route can answer honestly (retry, no fakes). */
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 function cleanJson(raw: string): string {
@@ -50,7 +50,7 @@ export async function decomposeWithGroq(
           // json_object mode with 400. The prompt demands raw JSON instead,
           // and sanitizeResponse coerces any off-enum values below.
           messages: [
-            { role: "system", content: `${SYSTEM}\nReturn a single JSON object with keys: normalizedName, summary, components, materials, funFact, originHint. No markdown fences, no commentary.` },
+            { role: "system", content: `${SYSTEM}\nReturn a single JSON object with keys: normalizedName, summary, components, materials. No markdown fences, no commentary.` },
             {
               role: "user",
               content:

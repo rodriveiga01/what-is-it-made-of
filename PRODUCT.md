@@ -24,9 +24,9 @@ Living-room / kitchen-table use on desktop or phone, in short sessions: search a
 
 ## Capabilities and Constraints
 
-- Confirmed functionality: natural-language search normalized to physical objects; structured-AI decomposition one layer per request (5–8 parts); recursive diving to depth 6 with bedrock/origin transition; breadcrumbs and collapsible ancestors; rare finds; depth celebrations; personal collection and stats; shareable threads; curated fallback KB plus generative fallback when live AI is unavailable or over quota.
+- Confirmed functionality: natural-language search normalized to physical objects; structured-AI decomposition one layer per request (5–8 parts); recursive diving to depth 6 ending at atoms/bedrock; breadcrumbs and collapsible ancestors; rare finds; depth celebrations; personal collection and stats; shareable threads. No canned content anywhere — every layer is model-generated; when all providers are down the UI shows an honest retry state, never invented parts.
 - Technical constraints: Gemini backend over server-side routes only (key never reaches the browser); structured JSON output validated by schema; 20 req/min/IP rate limit; non-physical input rejected with guidance; no login, no database.
-- Terminology: object → components → materials → origin; "depth" counts layers below the root; "rare find" marks surprising origins/scales.
+- Terminology: object → components → materials → molecules → atoms; "depth" counts layers below the root; "rare find" marks surprising parts.
 - Explicitly undecided: kid-safety/content-sensitivity review for AI output.
 
 ## Brand Commitments
@@ -36,13 +36,12 @@ Working name "WIIMO" with a daylight-workbench voice (field notes, origin traces
 ## Evidence on Hand
 
 - `RESEARCH.md`: Phase-0 market research (competitors, differentiation, ideas incorporated vs. rejected).
-- `lib/fallback.ts`: hand-tuned curated teardown KB (pencil, tank, smartphone, motor, copper, etc.).
 - Live product in this repo (Next.js 15 + Tailwind + framer-motion + zod); no testimonials, customers, benchmarks, or press — future work must not fabricate any.
 
 ## Product Principles
 
 1. Exploring is the product — every click must promise a surprise, never a wall of text.
-2. Truthful down, never sideways — decompose (parts → materials → origins), don't drift into trivia.
+2. Truthful down, never sideways — decompose (parts → materials → molecules → atoms), no stories, no supply chains, no invented content.
 3. Instant for everyone — no accounts, no empty states, works on first tap for any age.
 4. Curiosity over completion — souvenir stats and quiet celebrations, never XP, streaks, or locked depths.
-5. Graceful under failure — a missed AI call degrades to curated content, never to an error wall.
+5. Honest under failure — a dead AI surfaces as retry, never as fake parts.

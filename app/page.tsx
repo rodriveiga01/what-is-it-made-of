@@ -23,7 +23,7 @@ const RANDOM_POOL = [
 const ALSO = ["Toilet", "Camera", "Sneaker", "Guitar", "Toaster", "Headphones"];
 const MAX_DEPTH = 6;
 
-const DEPTH_NAMES = ["OBJECT", "COMPONENTS", "PARTS + MATERIALS", "MATERIALS", "MOLECULES + ORIGIN", "ORIGIN", "BEDROCK"];
+const DEPTH_NAMES = ["OBJECT", "COMPONENTS", "PARTS + MATERIALS", "MATERIALS", "MOLECULES", "ATOMS", "BEDROCK"];
 const SCALES = ["1 m", "10 cm", "1 cm", "1 mm", "1 µm", "1 nm", "atoms"];
 const LOADING_LINES = [
   "Taking it apart...",
@@ -208,7 +208,6 @@ export default function Page() {
 
   const depth = path.length - 1;
   const exploring = path.length > 0;
-  const current = layers[layers.length - 1] ?? null;
 
   useEffect(() => {
     setProgress(loadProgress());
@@ -790,25 +789,16 @@ export default function Page() {
                             ))}
                           </div>
                         )}
-                        {layer.funFact && (
-                          <div className="mt-5 max-w-[640px] rounded-md bg-card hairline px-4 py-3">
-                            <p className="font-mono-l text-[10px] uppercase tracking-[0.16em] text-signaldeep mb-1">Field note</p>
-                            <p className="text-[15px] text-ink leading-relaxed">{layer.funFact}</p>
-                          </div>
-                        )}
-                        {layer.originHint && (
-                          <div className="mt-4 max-w-[640px]">
-                            <p className="text-[14px] text-soft leading-relaxed">{layer.originHint}</p>
-                          </div>
-                        )}
                       </div>
 
                       {layerDepth >= MAX_DEPTH ? (
                         <div className="hairline rounded-lg bg-card px-6 py-8 mt-4 text-center">
                           <p className="font-mono-l text-[11px] uppercase tracking-[0.18em] text-leaf mb-2">Bedrock reached</p>
-                          <p className="font-serif-d text-3xl">You followed matter to its source.</p>
+                          <p className="font-serif-d text-3xl">Down to atoms.</p>
                           <p className="text-soft mt-2 text-[15px] max-w-[520px] mx-auto">
-                            {layer.originHint || "Every atom here is older than the Earth itself."}
+                            {layer.materials.length > 0
+                              ? `Everything here is ${layer.materials.join(", ")}.`
+                              : "Nothing smaller left to open."}
                           </p>
                           <div className="flex gap-5 justify-center mt-5">
                             <button onClick={() => setShareOpen(true)} className="tap-inline font-mono-l text-[11px] uppercase tracking-[0.14em] text-signaldeep">
@@ -995,7 +985,6 @@ export default function Page() {
               </p>
               <h2 id="share-title" data-dialog-title tabIndex={-1} className="font-serif-d italic text-5xl mt-2">{path[path.length - 1]}</h2>
               <p className="text-soft mt-3 text-[15px] leading-relaxed">{path.join(" → ")}</p>
-              {current?.funFact && <p className="text-ink mt-3 text-[15px]">{current.funFact}</p>}
               <p className="font-mono-l text-[11px] text-mute mt-4 break-all">{shareUrl}</p>
               <div className="flex gap-3 mt-6">
                 <button

@@ -5,7 +5,6 @@ import { rateLimit } from "@/lib/ratelimit";
 import { cacheKey, denudedQuery, isNonPhysical, normalizeQuery } from "@/lib/normalize";
 import { decomposeWithGemini } from "@/lib/gemini";
 import { decomposeWithGroq } from "@/lib/groq";
-import { generateFallback, lookupFallback } from "@/lib/fallback";
 
 // Serverless-friendly: fail fast instead of holding a function instance.
 export const maxDuration = 30;
@@ -79,12 +78,8 @@ export async function POST(req: Request) {
 
   try {
     const data = await dedup(key, async () => {
-      // Curated KB first: instant, hand-tuned, no cost. Live AI for the
-      // long tail of arbitrary objects, generic fallback as last resort.
-      // Prefetch requests never spend tokens: cache/curated hits warm the
-      // UI for free, anything else falls straight to instant local content.
-      const curated = lookupFallback(norm);
-      if (curated) return { ...sanitizeResponse(curated), source: "curated" as const };
+      // AI-only: no canned content anywhere — the app presents, the model
+      // thinks. Cache serves repeats for free. Prefetch never spends tokens.
       if (!prefetch && process.env.GEMINI_API_KEY) {
         try {
           const live = await decomposeWithGemini(norm, path, depth);
@@ -103,17 +98,21 @@ export async function POST(req: Request) {
           console.warn(`[decompose] groq miss (depth ${depth}):`, err instanceof Error ? err.message.slice(0, 300) : "unknown");
         }
       }
-      return { ...sanitizeResponse(generateFallback(norm, path, depth)), source: "fallback" as const };
+      // Honest failure — the UI shows retry, never fake parts.
+      throw new Error("ai_unavailable");
     });
-    // Never cache generic fallbacks long-term: they would shadow a real AI
-    // answer once upstream quota recovers. Curated + AI results are stable.
-    if ((data as { source?: string }).source !== "fallback") {
-      cacheSet(key, { data });
-    }
+    cacheSet(key, { data });
     return NextResponse.json({ ...data, cached: false });
   } catch {
-    // Safe fallback — never crash the UI
-    const fb = sanitizeResponse(generateFallback(norm, path, depth));
-    return NextResponse.json({ ...fb, cached: false, source: "fallback" });
+    // Prefetch misses are silent by design (the UI ignores them); real
+    // requests surface as a retryable error, never invented content.
+    if (prefetch) return NextResponse.json({ error: "prefetch_skip" }, { status: 503 });
+    return NextResponse.json(
+      {
+        error: "ai_unavailable",
+        message: "The teardown engine is unreachable — API quota may be spent. Wait a bit and retry.",
+      },
+      { status: 503 },
+    );
   }
 }

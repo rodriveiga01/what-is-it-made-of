@@ -57,7 +57,6 @@ export function useDecompose() {
           summary: "",
           components: [],
           materials: [],
-          funFact: "",
           query,
           ancestry,
           failed: true,
@@ -71,7 +70,6 @@ export function useDecompose() {
           summary: "",
           components: [],
           materials: [],
-          funFact: "",
           query,
           ancestry,
           failed: true,
@@ -79,12 +77,26 @@ export function useDecompose() {
         };
         return layer;
       }
+      if (res.status === 503) {
+        const j = await res.json().catch(() => ({} as { message?: string }));
+        const layer: Layer = {
+          normalizedName: query,
+          summary: "",
+          components: [],
+          materials: [],
+          query,
+          ancestry,
+          failed: true,
+          failMessage: j.message || "The teardown engine is unreachable — wait a bit and retry.",
+        };
+        return layer;
+      }
       if (!res.ok) throw new Error(`bad status ${res.status}`);
       const j = (await res.json()) as DecomposeResponse & { cached?: boolean; source?: string };
       const layer: Layer = { ...j, query, ancestry };
-      // Don't persist generic fallbacks to disk: they must not shadow a real
-      // AI answer on the next visit once upstream quota recovers.
-      if (j.source !== "fallback" && layer.components.length >= 3) {
+      // AI answers persist to memory + disk so repeats and back-navigation
+      // cost nothing. Nothing else is ever persisted.
+      if (layer.components.length >= 3) {
         cacheRef.current.set(key, layer);
         layerCacheSet(key, layer);
       }
@@ -100,7 +112,6 @@ export function useDecompose() {
         summary: "",
         components: [],
         materials: [],
-        funFact: "",
         query,
         ancestry,
         failed: true,
