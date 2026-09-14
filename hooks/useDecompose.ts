@@ -24,7 +24,7 @@ function keyOf(query: string, ancestry: string[]): string {
 export function useDecompose() {
   const cacheRef = useRef(new Map<string, Layer>());
 
-  const fetchLayer = useCallback(async (query: string, ancestry: string[]): Promise<Layer> => {
+  const fetchLayer = useCallback(async (query: string, ancestry: string[], opts?: { prefetch?: boolean }): Promise<Layer> => {
     const key = keyOf(query, ancestry);
     const mem = cacheRef.current.get(key);
     if (mem && !mem.failed) return mem;
@@ -46,7 +46,7 @@ export function useDecompose() {
       const res = await fetch("/api/decompose", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, path: ancestry }),
+        body: JSON.stringify({ query, path: ancestry, prefetch: opts?.prefetch ?? false }),
         // Never hang the UI forever on a stalled network.
         signal: AbortSignal.timeout(20_000),
       });

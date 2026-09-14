@@ -68,6 +68,8 @@ export type DecomposeResponse = z.infer<typeof DecomposeResponseSchema>;
 export const DecomposeRequestSchema = z.object({
   query: z.string().trim().min(1).max(80),
   path: z.array(z.string().trim().min(1).max(80)).max(6).default([]),
+  // Cache-warm only: serve cache/curated/instant content, never spend tokens.
+  prefetch: z.boolean().optional().default(false),
 });
 export type DecomposeRequest = z.infer<typeof DecomposeRequestSchema>;
 

@@ -90,7 +90,9 @@ export async function decomposeWithGemini(
       responseMimeType: "application/json",
       responseSchema: RESPONSE_SCHEMA,
       temperature: 0.35,
-      maxOutputTokens: 2500,
+      // Teardowns are small (≤8 parts × ~18-word descriptions): cap output
+      // so a verbose model can't burn tokens on filler.
+      maxOutputTokens: 1200,
     } as unknown as never,
   });
 
@@ -108,7 +110,11 @@ export async function decomposeWithGemini(
       const json = JSON.parse(text);
       return sanitizeResponse(json);
     } catch (err) {
-      if (attemptN === 1) throw err;
+      // Client errors (429 quota, 401/403 auth, 404 model, 400 shape) will
+      // not heal in one second — retrying just burns a second paid call.
+      // Only the repair retry for transient/parse failures remains.
+      const msg = err instanceof Error ? err.message : "";
+      if (attemptN === 1 || /\b(400|401|403|404|429)\b|quota|exhausted/i.test(msg)) throw err;
       // fall through to one repair retry
     }
   }

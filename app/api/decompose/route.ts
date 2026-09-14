@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
-  const { query, path } = parsed.data;
+  const { query, path, prefetch } = parsed.data;
   const depth = path.length;
   if (depth > 6) {
     return NextResponse.json({ error: "too_deep" }, { status: 400 });
@@ -81,9 +81,11 @@ export async function POST(req: Request) {
     const data = await dedup(key, async () => {
       // Curated KB first: instant, hand-tuned, no cost. Live AI for the
       // long tail of arbitrary objects, generic fallback as last resort.
+      // Prefetch requests never spend tokens: cache/curated hits warm the
+      // UI for free, anything else falls straight to instant local content.
       const curated = lookupFallback(norm);
       if (curated) return { ...sanitizeResponse(curated), source: "curated" as const };
-      if (process.env.GEMINI_API_KEY) {
+      if (!prefetch && process.env.GEMINI_API_KEY) {
         try {
           const live = await decomposeWithGemini(norm, path, depth);
           return { ...live, source: "ai" as const };
@@ -93,7 +95,7 @@ export async function POST(req: Request) {
         }
       }
       // Second provider: Groq free tier. Same sanitized shape, same cache rules.
-      if (process.env.GROQ_API_KEY) {
+      if (!prefetch && process.env.GROQ_API_KEY) {
         try {
           const live = await decomposeWithGroq(norm, path, depth);
           return { ...live, source: "ai" as const };

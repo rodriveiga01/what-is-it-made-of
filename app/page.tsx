@@ -189,7 +189,9 @@ export default function Page() {
       if (prefetchTimers.current.has(key)) return;
       const id = setTimeout(() => {
         prefetchTimers.current.delete(key);
-        fetchLayer(name, ancestry).catch(() => {});
+        // Token-free by contract: the server serves cache/curated/instant
+        // content for prefetch and never calls a live provider.
+        fetchLayer(name, ancestry, { prefetch: true }).catch(() => {});
       }, 350);
       prefetchTimers.current.set(key, id);
     },
