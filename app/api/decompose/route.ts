@@ -4,6 +4,7 @@ import { cacheGet, cacheSet, dedup } from "@/lib/cache";
 import { rateLimit } from "@/lib/ratelimit";
 import { cacheKey, denudedQuery, isNonPhysical, normalizeQuery } from "@/lib/normalize";
 import { decomposeWithGemini } from "@/lib/gemini";
+import { decomposeWithGroq } from "@/lib/groq";
 import { generateFallback, lookupFallback } from "@/lib/fallback";
 
 // Serverless-friendly: fail fast instead of holding a function instance.
@@ -89,6 +90,15 @@ export async function POST(req: Request) {
         } catch (err) {
           // Log only the failure reason — never the key or full prompt.
           console.warn(`[decompose] live AI miss (depth ${depth}):`, err instanceof Error ? err.message.slice(0, 300) : "unknown");
+        }
+      }
+      // Second provider: Groq free tier. Same sanitized shape, same cache rules.
+      if (process.env.GROQ_API_KEY) {
+        try {
+          const live = await decomposeWithGroq(norm, path, depth);
+          return { ...live, source: "ai" as const };
+        } catch (err) {
+          console.warn(`[decompose] groq miss (depth ${depth}):`, err instanceof Error ? err.message.slice(0, 300) : "unknown");
         }
       }
       return { ...sanitizeResponse(generateFallback(norm, path, depth)), source: "fallback" as const };

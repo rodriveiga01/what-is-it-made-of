@@ -30,7 +30,8 @@ const RESPONSE_SCHEMA = {
   required: ["normalizedName", "summary", "components", "materials", "funFact"],
 };
 
-const SYSTEM = `You are a product-teardown expert for "What Is It Made Of?", an interactive curiosity game.
+/** Shared teardown prompt: any instruction-following JSON-capable model can serve it. */
+export const SYSTEM = `You are a product-teardown expert for "What Is It Made Of?", an interactive curiosity game.
 HARD RULES:
 - Return ONLY the next layer: 6-8 meaningful PHYSICAL parts (min 5, max 8).
 - Each part must be a thing you could hold or point to if disassembled.
@@ -51,7 +52,7 @@ function asData(s: string, max = 80): string {
   return s.replace(/[\r\n\t]+/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 }
 
-function buildPrompt(query: string, path: string[], depth: number): string {
+export function buildPrompt(query: string, path: string[], depth: number): string {
   const depthBias =
     depth <= 1
       ? "Prefer type=assembly/component."

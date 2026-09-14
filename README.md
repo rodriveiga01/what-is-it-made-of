@@ -16,7 +16,7 @@ A recursive teardown explorer: search an object, tap a component to decompose it
 
 ```bash
 npm install
-cp .env.example .env.local   # then add your GEMINI_API_KEY
+cp .env.example .env.local   # then add your GEMINI_API_KEY (and optionally GROQ_API_KEY as failover)
 npm run dev
 ```
 
@@ -35,7 +35,7 @@ Next.js 15 (App Router) · React 19 · Tailwind CSS · framer-motion · zod · G
 
 ## Known Limitations
 
-- Live decomposition needs `GEMINI_API_KEY`; without it the app serves curated fallback content.
+- Live decomposition needs `GEMINI_API_KEY`; without it (or when its quota is spent) the app tries `GROQ_API_KEY` if set, then serves curated fallback content.
 - API is rate-limited to 20 req/min per IP.
 - No accounts or database — history lives in the browser's localStorage.
 - Dark-only visual identity, English-only UI.
