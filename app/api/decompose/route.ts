@@ -61,19 +61,24 @@ export async function POST(req: Request) {
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
     "local";
-  const rl = rateLimit(ip);
-  if (!rl.ok) {
-    const retryAfter = String(rl.retryAfter ?? 30);
-    return NextResponse.json(
-      { error: "rate_limited", retryAfter: Number(retryAfter) },
-      { status: 429, headers: { "Retry-After": retryAfter } },
-    );
-  }
-
   const key = cacheKey(query, path);
   const hit = cacheGet<{ data: Record<string, unknown> }>(key);
   if (hit) {
     return NextResponse.json({ ...hit.data, cached: true });
+  }
+
+  // Rate budget protects paid calls only: cache hits already returned, and
+  // prefetch can never reach a live provider, so neither consumes budget.
+  // Without this, hovering cards starves real dives of their 20 req/min.
+  if (!prefetch) {
+    const rl = rateLimit(ip);
+    if (!rl.ok) {
+      const retryAfter = String(rl.retryAfter ?? 30);
+      return NextResponse.json(
+        { error: "rate_limited", retryAfter: Number(retryAfter) },
+        { status: 429, headers: { "Retry-After": retryAfter } },
+      );
+    }
   }
 
   try {

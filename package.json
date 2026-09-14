@@ -1,7 +1,7 @@
 {
   "name": "what-is-it-made-of",
   "version": "1.0.0",
-  "description": "",
+  "description": "Type any physical thing. AI takes it apart layer by layer, down to atoms.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["nextjs", "react", "gemini", "groq", "teardown", "education"],
+  "author": "rodriveiga01",
+  "license": "MIT",
   "type": "commonjs",
   "private": "true",
   "dependencies": {

@@ -449,7 +449,15 @@ export default function Page() {
     const params = new URLSearchParams(window.location.search);
     const diveParam = params.get("dive");
     if (!diveParam) return;
-    const names = diveParam.split("/").map((s) => decodeURIComponent(s.trim())).filter(Boolean).slice(0, MAX_DEPTH + 1);
+    // A hand-crafted ?dive=% link must never crash boot: malformed escape
+    // sequences throw inside decodeURIComponent, so parse defensively.
+    let names: string[];
+    try {
+      names = diveParam.split("/").map((s) => decodeURIComponent(s.trim())).filter(Boolean).slice(0, MAX_DEPTH + 1);
+    } catch {
+      window.history.replaceState(null, "", window.location.pathname);
+      return;
+    }
     if (names.length === 0) return;
     (async () => {
       setSearching(true);
